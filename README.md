@@ -1,1 +1,1 @@
-# ToDo App with FireBase, ReactNative and Expo
+### ToDo App with TypeScrpt, FireBase, ReactNative and Expo
