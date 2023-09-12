@@ -1,20 +1,57 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { NavigationContainer } from "@react-navigation/native";
+import List from "./App/screens/List";
+import Details from "./App/screens/Details";
+import Login from "./App/screens/Login";
+import { useEffect, useState } from "react";
+import { User, getAuth, onAuthStateChanged } from "firebase/auth";
+import { FIREBASE_AUTH } from "./firebaseConfig";
 
-export default function App() {
+const Stack = createNativeStackNavigator();
+
+const InsideStack = createNativeStackNavigator();
+
+function InsideLayout() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <InsideStack.Navigator>
+      <InsideStack.Screen name="My todos" component={List} />
+      <InsideStack.Screen name="Details" component={Details} />
+    </InsideStack.Navigator>
   );
 }
+export default function App() {
+  const [authenticated, setAuthenticated] = useState<User | null>(null);
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+  useEffect(() => {
+    onAuthStateChanged(FIREBASE_AUTH, (user) => {
+      console.log("user", user);
+      setAuthenticated(user);
+    });
+  }, []);
+
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName={"Login"}>
+        {authenticated ? (
+          <Stack.Screen
+            name="Inside"
+            component={InsideLayout}
+            options={{
+              headerShown: false,
+              headerTitleAlign: "center",
+            }}
+          />
+        ) : (
+          <Stack.Screen
+            name="Login"
+            component={Login}
+            options={{
+              headerShown: false,
+              headerTitleAlign: "center",
+            }}
+          />
+        )}
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
